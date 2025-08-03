@@ -10,7 +10,7 @@
 #include "platform.h"
 #include "remapper.h"
 
-const uint8_t CONFIG_VERSION = 18;
+const uint8_t CONFIG_VERSION = 19;
 
 const uint8_t CONFIG_FLAG_UNMAPPED_PASSTHROUGH = 0x01;
 const uint8_t CONFIG_FLAG_UNMAPPED_PASSTHROUGH_MASK = 0b00001111;
@@ -18,6 +18,7 @@ const uint8_t CONFIG_FLAG_UNMAPPED_PASSTHROUGH_BIT = 0;
 const uint8_t CONFIG_FLAG_IGNORE_AUTH_DEV_INPUTS_BIT = 4;
 const uint8_t CONFIG_FLAG_GPIO_OUTPUT_MODE_BIT = 5;
 const uint8_t CONFIG_FLAG_NORMALIZE_GAMEPAD_INPUTS_BIT = 6;
+const uint8_t CONFIG_FLAG_PERSIST_HIGH_RES_SCROLL_BIT = 7;
 
 ConfigCommand last_config_command = ConfigCommand::NO_COMMAND;
 uint32_t requested_index = 0;
@@ -621,6 +622,7 @@ void load_config(const uint8_t* persisted_config) {
     ignore_auth_dev_inputs = config->flags & (1 << CONFIG_FLAG_IGNORE_AUTH_DEV_INPUTS_BIT);
     gpio_output_mode = !!(config->flags & (1 << CONFIG_FLAG_GPIO_OUTPUT_MODE_BIT));
     normalize_gamepad_inputs = !!(config->flags & (1 << CONFIG_FLAG_NORMALIZE_GAMEPAD_INPUTS_BIT));
+    persist_high_res_scroll = !!(config->flags & (1 << CONFIG_FLAG_PERSIST_HIGH_RES_SCROLL_BIT));
     partial_scroll_timeout = config->partial_scroll_timeout;
     tap_hold_threshold = config->tap_hold_threshold;
     gpio_debounce_time = config->gpio_debounce_time_ms * 1000;
@@ -690,6 +692,7 @@ void fill_get_config(get_config_t* config) {
     config->flags |= ignore_auth_dev_inputs << CONFIG_FLAG_IGNORE_AUTH_DEV_INPUTS_BIT;
     config->flags |= gpio_output_mode << CONFIG_FLAG_GPIO_OUTPUT_MODE_BIT;
     config->flags |= normalize_gamepad_inputs << CONFIG_FLAG_NORMALIZE_GAMEPAD_INPUTS_BIT;
+    config->flags |= persist_high_res_scroll << CONFIG_FLAG_PERSIST_HIGH_RES_SCROLL_BIT;
     config->unmapped_passthrough_layer_mask = unmapped_passthrough_layer_mask;
     config->partial_scroll_timeout = partial_scroll_timeout;
     config->tap_hold_threshold = tap_hold_threshold;
@@ -711,6 +714,7 @@ void fill_persist_config(persist_config_t* config) {
     config->flags |= ignore_auth_dev_inputs << CONFIG_FLAG_IGNORE_AUTH_DEV_INPUTS_BIT;
     config->flags |= gpio_output_mode << CONFIG_FLAG_GPIO_OUTPUT_MODE_BIT;
     config->flags |= normalize_gamepad_inputs << CONFIG_FLAG_NORMALIZE_GAMEPAD_INPUTS_BIT;
+    config->flags |= persist_high_res_scroll << CONFIG_FLAG_PERSIST_HIGH_RES_SCROLL_BIT;
     config->unmapped_passthrough_layer_mask = unmapped_passthrough_layer_mask;
     config->partial_scroll_timeout = partial_scroll_timeout;
     config->tap_hold_threshold = tap_hold_threshold;
@@ -818,11 +822,6 @@ PersistConfigReturnCode persist_config() {
     do_persist_config(buffer);
 
     return PersistConfigReturnCode::SUCCESS;
-}
-
-void reset_resolution_multiplier() {
-    // reset hi-res scroll on reboots
-    resolution_multiplier = 0;
 }
 
 uint16_t handle_get_report1(uint8_t report_id, uint8_t* buffer, uint16_t reqlen) {
@@ -971,6 +970,7 @@ void handle_set_report1(uint8_t report_id, uint8_t const* buffer, uint16_t bufsi
                     ignore_auth_dev_inputs = config->flags & (1 << CONFIG_FLAG_IGNORE_AUTH_DEV_INPUTS_BIT);
                     gpio_output_mode = !!(config->flags & (1 << CONFIG_FLAG_GPIO_OUTPUT_MODE_BIT));
                     normalize_gamepad_inputs = !!(config->flags & (1 << CONFIG_FLAG_NORMALIZE_GAMEPAD_INPUTS_BIT));
+                    persist_high_res_scroll = !!(config->flags & (1 << CONFIG_FLAG_PERSIST_HIGH_RES_SCROLL_BIT));
                     partial_scroll_timeout = config->partial_scroll_timeout;
                     tap_hold_threshold = config->tap_hold_threshold;
                     gpio_debounce_time = config->gpio_debounce_time_ms * 1000;

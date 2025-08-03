@@ -32,6 +32,7 @@ bool ignore_auth_dev_inputs = false;
 uint8_t macro_entry_duration = 0;  // 0 means 1ms
 uint8_t gpio_output_mode = 0;
 bool normalize_gamepad_inputs = true;
+bool persist_high_res_scroll = true;  // default to persist
 
 std::vector<mapping_config11_t> config_mappings;
 

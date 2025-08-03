@@ -214,6 +214,13 @@ void tud_hid_set_protocol_cb(uint8_t instance, uint8_t protocol) {
 }
 
 void tud_mount_cb() {
+    // Only reset resolution_multiplier if configured to do so.
+    // By default, persist_high_res_scroll is true, so high-resolution 
+    // scroll mode persists across USB reconnections.
+    if (!persist_high_res_scroll) {
+        resolution_multiplier = 0;
+    }
+    
     if (boot_protocol_keyboard) {
         boot_protocol_keyboard = false;
         boot_protocol_updated = true;
