@@ -523,7 +523,12 @@ uint8_t const our_report_descriptor_xac_compat[] = {
 
 void kb_mouse_handle_set_report(uint8_t report_id, const uint8_t* buffer, uint16_t reqlen) {
     if (report_id == REPORT_ID_MULTIPLIER && reqlen >= 1) {
+        uint8_t old_value = resolution_multiplier;
         memcpy(&resolution_multiplier, buffer, 1);
+        // Persist the new value if it changed and persist_high_res_scroll is enabled
+        if (persist_high_res_scroll && (old_value != resolution_multiplier)) {
+            need_to_persist_config = true;
+        }
     } else if (boot_protocol_keyboard || (report_id == REPORT_ID_LEDS)) {
         handle_received_report(buffer, reqlen, OUR_OUT_INTERFACE, report_id);
     }

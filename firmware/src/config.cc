@@ -607,17 +607,20 @@ void load_config(const uint8_t* persisted_config) {
     // v15 is same as v14, it just introduces some new expression ops
     // v16 is same as v15, it just introduces a new expression op
     // v17 is same as v16, it introduces new expression ops and GET_FEATURE retry behavior
+    // v18 is same as v17, it introduces persist_high_res_scroll flag
 
     if ((version == 13) ||
         (version == 14) ||
         (version == 15) ||
         (version == 16) ||
-        (version == 17)) {
+        (version == 17) ||
+        (version == 18)) {
         load_config_v13(persisted_config);
         return;
     }
 
-    persist_config_v18_t* config = (persist_config_v18_t*) persisted_config;
+    // version 19+
+    persist_config_t* config = (persist_config_t*) persisted_config;
     unmapped_passthrough_layer_mask = config->unmapped_passthrough_layer_mask;
     ignore_auth_dev_inputs = config->flags & (1 << CONFIG_FLAG_IGNORE_AUTH_DEV_INPUTS_BIT);
     gpio_output_mode = !!(config->flags & (1 << CONFIG_FLAG_GPIO_OUTPUT_MODE_BIT));
@@ -632,12 +635,13 @@ void load_config(const uint8_t* persisted_config) {
         our_descriptor_number = 0;
     }
     macro_entry_duration = config->macro_entry_duration;
-    mapping_config11_t* buffer_mappings = (mapping_config11_t*) (persisted_config + sizeof(persist_config_v18_t));
+    resolution_multiplier = config->resolution_multiplier;
+    mapping_config11_t* buffer_mappings = (mapping_config11_t*) (persisted_config + sizeof(persist_config_t));
     for (uint32_t i = 0; i < config->mapping_count; i++) {
         config_mappings.push_back(buffer_mappings[i]);
     }
 
-    const uint8_t* macros_config_ptr = (persisted_config + sizeof(persist_config_v18_t) + config->mapping_count * sizeof(mapping_config11_t));
+    const uint8_t* macros_config_ptr = (persisted_config + sizeof(persist_config_t) + config->mapping_count * sizeof(mapping_config11_t));
     my_mutex_enter(MutexId::MACROS);
     for (int i = 0; i < NMACROS; i++) {
         macros[i].clear();
@@ -723,6 +727,7 @@ void fill_persist_config(persist_config_t* config) {
     config->interval_override = interval_override;
     config->our_descriptor_number = our_descriptor_number;
     config->macro_entry_duration = macro_entry_duration;
+    config->resolution_multiplier = resolution_multiplier;
     my_mutex_enter(MutexId::QUIRKS);
     config->quirk_count = quirks.size();
     my_mutex_exit(MutexId::QUIRKS);
