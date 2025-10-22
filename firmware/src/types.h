@@ -343,6 +343,7 @@ struct __attribute__((packed)) get_config_t {
     uint8_t our_descriptor_number;
     uint8_t macro_entry_duration;
     uint16_t quirk_count;
+    uint8_t resolution_multiplier;
 };
 
 struct __attribute__((packed)) set_config_t {

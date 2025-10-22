@@ -707,6 +707,7 @@ void fill_get_config(get_config_t* config) {
     config->interval_override = interval_override;
     config->our_descriptor_number = our_descriptor_number;
     config->macro_entry_duration = macro_entry_duration;
+    config->resolution_multiplier = resolution_multiplier;
     my_mutex_enter(MutexId::QUIRKS);
     config->quirk_count = quirks.size();
     my_mutex_exit(MutexId::QUIRKS);
