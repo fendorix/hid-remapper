@@ -399,6 +399,11 @@ void set_mapping_from_config() {
     memset(tap_hold_state, 0, sizeof(tap_hold_state));
     memset(sticky_state, 0, sizeof(sticky_state));
     active_ports_mask = 0;
+    for (auto const& [dev_addr, hub_port] : hub_ports) {
+        if (hub_port != HUB_PORT_NONE) {
+            active_ports_mask |= 1 << hub_port;
+        }
+    }
     uint32_t gpio_in_mask_ = 0;
     uint32_t gpio_out_mask_ = 0;
 
@@ -1216,7 +1221,9 @@ void process_mapping(bool auto_repeat) {
         if (rev_map.is_relative) {
             for (auto& map_source : rev_map.sources) {
                 if ((map_source.orig_source_port != 0) &&
-                    !(active_ports_mask & (1 << map_source.orig_source_port))) {
+                    !(active_ports_mask & (1 << map_source.orig_source_port)) &&
+                    ((map_source.usage & 0xFFFF0000) != EXPR_USAGE_PAGE) &&
+                    ((map_source.usage & 0xFFFF0000) != REGISTER_USAGE_PAGE)) {
                     continue;
                 }
                 int32_t value = 0;
@@ -1249,7 +1256,9 @@ void process_mapping(bool auto_repeat) {
             int32_t value = rev_map.default_value;
             for (auto const& map_source : rev_map.sources) {
                 if ((map_source.orig_source_port != 0) &&
-                    !(active_ports_mask & (1 << map_source.orig_source_port))) {
+                    !(active_ports_mask & (1 << map_source.orig_source_port)) &&
+                    ((map_source.usage & 0xFFFF0000) != EXPR_USAGE_PAGE) &&
+                    ((map_source.usage & 0xFFFF0000) != REGISTER_USAGE_PAGE)) {
                     continue;
                 }
                 if (map_source.sticky) {
