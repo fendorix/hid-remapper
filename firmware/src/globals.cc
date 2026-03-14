@@ -35,7 +35,7 @@ bool normalize_gamepad_inputs = true;
 
 std::vector<mapping_config11_t> config_mappings;
 
-uint8_t resolution_multiplier = 0;
+uint8_t resolution_multiplier = DEFAULT_RESOLUTION_MULTIPLIER;
 
 std::vector<std::vector<uint32_t>> macros[NMACROS];
 

@@ -821,8 +821,7 @@ PersistConfigReturnCode persist_config() {
 }
 
 void reset_resolution_multiplier() {
-    // reset hi-res scroll on reboots
-    resolution_multiplier = 0;
+    resolution_multiplier = DEFAULT_RESOLUTION_MULTIPLIER;
 }
 
 uint16_t handle_get_report1(uint8_t report_id, uint8_t* buffer, uint16_t reqlen) {
