@@ -24,6 +24,8 @@
  *
  */
 
+#include <stdio.h>
+
 #include <tusb.h>
 
 #include "config.h"
@@ -109,7 +111,11 @@ char const* string_desc_arr[] = {
 #else
     "RP2040",  // 1: Manufacturer
 #endif
+#ifdef REMAPPER_BT
+    "HID Remapper Bluetooth XXXX",  // 2: Product
+#else
     "HID Remapper XXXX",  // 2: Product
+#endif
     "123456789012",       // 3: Serial Number
 };
 
@@ -222,6 +228,9 @@ void tud_hid_set_protocol_cb(uint8_t instance, uint8_t protocol) {
 }
 
 void tud_mount_cb() {
+    // A USB bus reset clears TinyUSB's SOF callback enable, so it has to be set
+    // again each time we get configured.
+    tud_sof_cb_enable(true);
     if (boot_protocol_keyboard) {
         boot_protocol_keyboard = false;
         boot_protocol_updated = true;
